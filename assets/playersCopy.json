@@ -1,0 +1,23 @@
+{
+    "players": [
+        {
+            "username": "cracked_egg",
+            "id": 616160603798503435,
+            "hand": [
+                "Assault",
+                "Head devastating"
+            ],
+            "decks": [
+                {
+                    "name": "Test deck",
+                    "cards": [
+                        "Assault",
+                        "Head devastating",
+                        "Reactive armor",
+                        "Exotic armor"
+                    ]
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,100 @@
+{
+    "cards": [
+        {
+            "name": "Assault",
+            "link": "https://cdn.discordapp.com/attachments/780118489259573252/1086149988683366440/1678665311117_Assault1.jpg",
+            "props": {
+                "atk": 17,
+                "def": 83
+            }
+        },
+        {
+            "name": "Head devastating",
+            "link": "https://cdn.discordapp.com/attachments/780118489259573252/1086149988909854780/1678757476304_Head_Devastating.jpg",
+            "props": {
+                "atk": 24,
+                "def": 58
+            }
+        },
+        {
+            "name": "Reactive armor",
+            "link": "https://cdn.discordapp.com/attachments/780118489259573252/1086149989190877225/1678814328423_Reactive_Armor.jpg",
+            "props": {
+                "atk": 91,
+                "def": 26
+            }
+        },
+        {
+            "name": "Exotic armor",
+            "link": "https://cdn.discordapp.com/attachments/780118489259573252/1086149989417365655/1678815460820_Exotic_Armor.jpg",
+            "props": {
+                "atk": 22,
+                "def": 77
+            }
+        },
+        {
+            "name": "Standard evangelion armor",
+            "link": "https://cdn.discordapp.com/attachments/780118489259573252/1086149989652234262/1678816680480_Standard_Evangelion_Armor.jpg",
+            "props": {
+                "atk": 19,
+                "def": 86
+            }
+        },
+        {
+            "name": "Tactical armor",
+            "link": "https://cdn.discordapp.com/attachments/780118489259573252/1086149989895520256/1678817401587_Tactical_Armor.jpg",
+            "props": {
+                "atk": 28,
+                "def": 38
+            }
+        },
+        {
+            "name": "AT-Enhanced armor",
+            "link": "https://cdn.discordapp.com/attachments/780118489259573252/1086149990159745134/1678819525564_AT-Enhanced_Armor.jpg",
+            "props": {
+                "atk": 2,
+                "def": 85
+            }
+        },
+        {
+            "name": "AR Barrier",
+            "link": "https://cdn.discordapp.com/attachments/780118489259573252/1086150111672946708/1678822238385_AT_Barrier.jpg",
+            "props": {
+                "atk": 76,
+                "def": 40
+            }
+        },
+        {
+            "name": "Berserk",
+            "link": "https://cdn.discordapp.com/attachments/780118489259573252/1086150111970730025/1678823999750_Berserk.jpg",
+            "props": {
+                "atk": 87,
+                "def": 26
+            }
+        },
+        {
+            "name": "Breakdown",
+            "link": "https://cdn.discordapp.com/attachments/780118489259573252/1086150112243351623/1678825615316_Breakdown.jpg",
+            "props": {
+                "atk": 13,
+                "def": 41
+            }
+        },
+        {
+            "name": "Departure",
+            "link": "https://cdn.discordapp.com/attachments/780118489259573252/1086150112583110737/1678826452400_Departure.jpg",
+            "props": {
+                "atk": 88,
+                "def": 60
+            }
+        },
+        {
+            "name": "Ubermensch",
+            "link": "https://cdn.discordapp.com/attachments/780118489259573252/1086150112859914291/1678827528798_Ubermensch.jpg",
+            "props": {
+                "atk": 31,
+                "def": 5
+            }
+        }
+    ]
+}

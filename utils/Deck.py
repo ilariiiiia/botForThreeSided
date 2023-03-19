@@ -2,29 +2,32 @@ import json
 from random import shuffle
 from utils.Exceptions import BadRequest, NoMoreCardsException
 
+cardObject = {
+    "image": str,
+    "name": str,
+    "props": dict
+}
 
-def cardFromObject(obj):
-    return Card(image=obj["image"], name=obj["name"], props=obj["props"])
-
-
-def cardFromJSONString(s: str):
-    return cardFromObject(json.loads(s))
+deckObject = {
+    "name": str,
+    "cards": list[cardObject]
+}
 
 
 class Card:
-    def __init__(self, image, name: str, props: dict):
+    def __init__(self, image: str, name: str, props: dict):
         self.image = image
         self.name = name
-        self.properties = props
+        self.props = props
 
-    def toObject(self):
+    def toObject(self) -> cardObject:
         return {
             "image": self.image,
             "name": self.name,
-            "props": self.properties
+            "props": self.props
         }
 
-    def toJSONString(self):
+    def toJSONString(self) -> str:
         return json.dumps(self.toObject())
 
 
@@ -47,3 +50,26 @@ class Deck:
 
     def removeCard(self, card: Card) -> None:
         self.cards.remove(card)
+
+    def toObject(self) -> deckObject:
+        return {
+            "name": self.name,
+            "cards": [c.toObject() for c in self.cards]
+        }
+
+    def toJSONString(self) -> str:
+        return json.dumps(self.toObject())
+
+
+def cardFromObject(obj: cardObject):
+    return Card(image=obj["image"], name=obj["name"], props=obj["props"])
+
+
+def cardFromJSONString(s: str):
+    return cardFromObject(json.loads(s))
+
+
+def deckFromObject(obj: deckObject) -> Deck:
+    newDeck = Deck(name=obj.name)
+    newDeck.cards = [cardFromObject(c) for c in obj.cards]
+    return newDeck

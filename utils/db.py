@@ -36,31 +36,26 @@ class Player:
         return {
             "username": self.username,
             "id": self.id,
-            "hand": [card.__str__() for card in self.hand],
-            "decks": [deck.__str__() for deck in self.decks]
+            "hand": [card.toObject() for card in self.hand],
+            "decks": [deck.toObject() for deck in self.decks]
         }
 
     def toJSONString(self):
         return json.dumps(self.objectify())
 
     def __repr__(self):
-        return f"""
-Player.
-username = {self.username}
-id = {self.id}
-hand = {self.hand}
-decks = {self.decks}
-"""
+        return f"""Player;username={self.username},id={self.id},hand={self.hand},decks={self.decks}"""
 
 
 class Database:
     def __init__(self, path: str):
         self.path = path
         self.root = os.path.dirname(os.path.abspath(path))
-        self.folderPath = Path(f"{self.root}/data")
-        self.playersFilePath = self.folderPath / "players.json"
-        self.cardsFilePath = self.folderPath / "cards.json"
-        self.cards = []
+        self.playersFolderPath = Path(f"{self.root}/data")
+        self.cardsFolderPath = Path(f"{self.root}/assets/cards")
+        self.playersFilePath = self.playersFolderPath / "players.json"
+        self.cardsFilePath = self.cardsFolderPath / "cards.json"
+        self.cards = self.getCards()
 
         # initialize an empty database, in case it doesn't exist
         def initializeDB():
@@ -68,7 +63,7 @@ class Database:
                 playersFile.write('{"players":[]}')
 
         self.createFileIfNotExists(
-            folderPath=self.folderPath, filePath=self.playersFilePath, initFunction=initializeDB
+            folderPath=self.playersFolderPath, filePath=self.playersFilePath, initFunction=initializeDB
         )
 
         # read cards
@@ -76,7 +71,7 @@ class Database:
             with open(self.cardsFilePath, "w") as cardsFile:
                 cardsFile.write('{"cards":[]}')
         self.createFileIfNotExists(
-            folderPath=self.folderPath, filePath=self.cardsFilePath, initFunction=initializeCards
+            folderPath=self.cardsFolderPath, filePath=self.cardsFilePath, initFunction=initializeCards
         )
 
     def createFileIfNotExists(self, folderPath, filePath, initFunction):
@@ -86,9 +81,6 @@ class Database:
             except FileNotFoundError:  # Directory does not exist
                 os.mkdir(folderPath)
                 initFunction()
-        else:
-            with open(filePath, "r") as file:
-                self.cards = json.load(file)
 
     def getPlayers(self) -> dict:
         with open(self.playersFilePath, "r") as file:
@@ -116,7 +108,7 @@ class Database:
         return newPlayer
 
     def savePlayer(self, player: Player):
-        players = self.getPlayers()
+        print(player.toJSONString())
 
     def deleteAllData(self):
         shutil.rmtree("data")
