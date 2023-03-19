@@ -47,8 +47,8 @@ class Player:
         return {
             "username": self.username,
             "id": self.id,
-            "hand": str(self.hand),
-            "decks": [deck.toObject() for deck in self.decks]
+            "hand": self.hand,
+            "decks": [deck.toObject(name=True) for deck in self.decks]
         }
 
     def toJSONString(self):
