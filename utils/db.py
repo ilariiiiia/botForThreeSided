@@ -1,24 +1,9 @@
-from random import shuffle
 import os
 from pathlib import Path
 import json
-from typing import List
+from utils.Deck import Deck, Card
 
 import discord
-
-
-class NoMoreCardsException(Exception):
-    """
-    Error raised when there are no more cards in a player's deck's cards.
-    """
-    pass
-
-
-class BadRequest(Exception):
-    """
-    Error raised with a bad request
-    """
-    pass
 
 
 class PlayerNotFound(Exception):
@@ -34,51 +19,23 @@ class helperUser:
         self.id = userID
 
 
-class Card:
-    def __init__(self, image, name: str, props: dict):
-        self.image = image
-        self.name = name
-        self.properties = props
-
-
-class Deck:
-    def __init__(self, name):
-        self.cards: list[Card] = []
-        self.name = name
-
-    def shuffle(self) -> None:
-        shuffle(self.cards)
-
-    def draw(self, num) -> list[Card]:
-        try:
-            num = int(num)
-        except Exception as e:
-            raise BadRequest
-        if len(self.cards) > num:
-            return self.cards[0:num]
-        raise NoMoreCardsException("Attempted to draw cards from a deck with no cards")
-
-    def removeCard(self, card: Card) -> None:
-        self.cards.remove(card)
-
-
 def userFromDictionary(arg: dict):
-    return Player(user=helperUser(arg["username"], arg["id"]), cards=arg["cards"], decks=arg["decks"])
+    return Player(user=helperUser(arg["username"], arg["id"]), hand=arg["hand"], decks=arg["decks"])
 
 
 class Player:
-    def __init__(self, user: discord.Member | helperUser, cards: list[Card], decks: list[Deck]):
+    def __init__(self, user: discord.Member | helperUser, hand: list[Card], decks: list[Deck]):
         self.username = user.name
         self.id = user.id
-        self.cards = cards if cards else []
-        self.hand = []
+        self.hand = hand if hand else []
         self.decks = decks if decks else []
+        self.activeDeck = None
 
     def objectify(self) -> dict:
         return {
             "username": self.username,
             "id": self.id,
-            "cards": [card.__str__() for card in self.cards],
+            "hand": [card.__str__() for card in self.hand],
             "decks": [deck.__str__() for deck in self.decks]
         }
 
@@ -90,7 +47,7 @@ class Player:
 Player.
 username = {self.username}
 id = {self.id}
-cards = {self.cards}
+hand = {self.hand}
 decks = {self.decks}
 """
 
@@ -99,22 +56,45 @@ class Database:
     def __init__(self, path: str):
         self.root = os.path.dirname(os.path.abspath(path))
         self.folderPath = Path(f"{self.root}/data")
-        self.filePath = self.folderPath / "players.json"
+        self.playersFilePath = self.folderPath / "players.json"
+        self.cardsFilePath = self.folderPath / "cards.json"
+        self.cards = []
 
-        def rewriteDB():
-            with open(self.filePath, "w") as file:
-                file.write('{"players":[]}')
+        # initialize an empty database, in case it doesn't exist
+        def initializeDB():
+            with open(self.playersFilePath, "w") as playersFile:
+                playersFile.write('{"players":[]}')
 
-        if not self.filePath.exists():
+        self.createFileIfNotExists(
+            folderPath=self.folderPath, filePath=self.playersFilePath, initFunction=initializeDB
+        )
+
+        # read cards
+        def initializeCards():
+            with open(self.cardsFilePath, "w") as cardsFile:
+                cardsFile.write('{"cards":[]}')
+        self.createFileIfNotExists(
+            folderPath=self.folderPath, filePath=self.cardsFilePath, initFunction=initializeCards
+        )
+
+    def createFileIfNotExists(self, folderPath, filePath, initFunction):
+        if not filePath.exists():
             try:
-                rewriteDB()
+                initFunction()
             except FileNotFoundError:  # Directory does not exist
-                os.mkdir(self.folderPath)
-                rewriteDB()
+                os.mkdir(folderPath)
+                initFunction()
+        else:
+            with open(filePath, "r") as file:
+                self.cards = json.load(file)
 
     def getPlayers(self) -> dict:
-        with open(self.filePath, "r") as file:
+        with open(self.playersFilePath, "r") as file:
             return json.load(file)["players"]
+
+    def getCards(self) -> list[dict]:
+        with open(self.cardsFilePath, "r") as file:
+            return json.load(file)["cards"]
 
     def findPlayer(self, playerId: str | int) -> Player:
         for player in self.getPlayers():
@@ -123,11 +103,14 @@ class Database:
         raise PlayerNotFound(f"The player could not be found! Id sent: {playerId}")
 
     def createNewPlayer(self, newPlayer: discord.Member) -> None:
-        newPlayer = Player(newPlayer, cards=[], decks=[])
-        with open(self.filePath, "r") as file:
+        newPlayer = Player(newPlayer, hand=[], decks=[])
+        with open(self.playersFilePath, "r") as file:
             oldData = json.load(file)
-        with open(self.filePath, "w") as file:
+        with open(self.playersFilePath, "w") as file:
             newPlayers = oldData["players"]
             newPlayers.append(newPlayer.objectify())
             newData = {"players": newPlayers}
             file.write(json.dumps(newData, indent=4))
+
+    def savePlayer(self, player: Player):
+        players = self.getPlayers()
