@@ -3,7 +3,7 @@ from random import shuffle
 from utils.Exceptions import BadRequest, NoMoreCardsException
 
 cardObject = {
-    "image": str,
+    "link": str,
     "name": str,
     "props": dict
 }
@@ -15,14 +15,14 @@ deckObject = {
 
 
 class Card:
-    def __init__(self, image: str, name: str, props: dict):
-        self.image = image
+    def __init__(self, link: str, name: str, props: dict):
+        self.link = link
         self.name = name
         self.props = props
 
     def toObject(self) -> cardObject:
         return {
-            "image": self.image,
+            "link": self.link,
             "name": self.name,
             "props": self.props
         }
@@ -62,14 +62,8 @@ class Deck:
 
 
 def cardFromObject(obj: cardObject):
-    return Card(image=obj["image"], name=obj["name"], props=obj["props"])
+    return Card(link=obj["link"], name=obj["name"], props=obj["props"])
 
 
 def cardFromJSONString(s: str):
     return cardFromObject(json.loads(s))
-
-
-def deckFromObject(obj: deckObject) -> Deck:
-    newDeck = Deck(name=obj.name)
-    newDeck.cards = [cardFromObject(c) for c in obj.cards]
-    return newDeck

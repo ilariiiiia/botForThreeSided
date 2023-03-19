@@ -20,6 +20,21 @@ logger = Logger(__file__)
 db = Database(__file__)
 
 
+async def handlePlayerExists(ctx: Context) -> bool:
+    try:
+        db.findPlayer(ctx.message.author.id)
+        return True
+    except PlayerNotFound:
+        embed = discord.Embed(
+            title='Uh Oh! An error occurred!',
+            description='Player not found! Creating a new player... If this happened through a command, please re-run '
+                        'it.',
+            color=0xff0000)
+        await ctx.send(embed=embed)
+        db.createNewPlayer(ctx.message.author)
+        return True
+
+
 @bot.event
 async def on_ready():
     print(f'Logged in as {bot.user}')
@@ -38,24 +53,12 @@ async def on_message(message):
 @bot.command()
 async def whoAmI(ctx: Context):
     logger.log("whoAmI opened")
-
-    try:
-        player = db.findPlayer(ctx.message.author.id)
-        embed = discord.Embed(title='Found you!', description='', color=0x79e4ff)
-        for name in player.objectify().keys():
-            embed.add_field(name=name, value=player.objectify()[name], inline=False)
-        await ctx.send(embed=embed)
-
-    except PlayerNotFound:
-        embed = discord.Embed(title='Who are you?', description='Player not found! Creating a new player...',
-                              color=0xff0000)
-        await ctx.send(embed=embed)
-        player = db.createNewPlayer(ctx.message.author)
-        embed = discord.Embed(title='Who are you?', description='Player created!',
-                              color=0x79e4ff)
-        for name in player.objectify().keys():
-            embed.add_field(name=name, value=player.objectify()[name], inline=False)
-        await ctx.send(embed=embed)
+    await handlePlayerExists(ctx)
+    player = db.findPlayer(ctx.message.author.id)
+    embed = discord.Embed(title='Found you!', description='', color=0x79e4ff)
+    for name in player.objectify().keys():
+        embed.add_field(name=name, value=player.objectify()[name], inline=False)
+    await ctx.send(embed=embed)
 
 
 @bot.command()
@@ -76,6 +79,24 @@ async def decks(ctx: Context):
         await ctx.send(embed=embed)
         db.createNewPlayer(ctx.message.author)
         await decks(ctx)
+
+
+@bot.command()
+async def showAllCards(ctx: Context):
+    embed = discord.Embed(title="All available cards!", color=0x79e4ff)
+    for c in db.getCards():
+        embed.add_field(name=c["name"], value=c["props"], inline=False)
+    await ctx.send(embed=embed)
+
+
+@bot.command()
+async def addCardToDeck(ctx: Context, deckName: str, cardName: str):
+    pass
+
+
+@bot.command()
+async def rm(ctx: Context):
+    await deleteAllData(ctx)
 
 
 @bot.command()

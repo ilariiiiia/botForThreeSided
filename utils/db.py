@@ -2,7 +2,7 @@ import os
 import shutil
 from pathlib import Path
 import json
-from utils.Deck import Deck, Card
+from utils.Deck import Deck, Card, cardFromObject, cardObject
 
 import discord
 
@@ -20,8 +20,12 @@ class helperUser:
         self.id = userID
 
 
-def userFromDictionary(arg: dict):
-    return Player(user=helperUser(arg["username"], arg["id"]), hand=arg["hand"], decks=arg["decks"])
+def userFromDictionary(arg: dict, decks: list[Deck]):
+    return Player(
+        user=helperUser(arg["username"], arg["id"]),
+        hand=arg["hand"],
+        decks=decks
+    )
 
 
 class Player:
@@ -36,7 +40,7 @@ class Player:
         return {
             "username": self.username,
             "id": self.id,
-            "hand": [card.toObject() for card in self.hand],
+            "hand": str(self.hand),
             "decks": [deck.toObject() for deck in self.decks]
         }
 
@@ -70,6 +74,7 @@ class Database:
         def initializeCards():
             with open(self.cardsFilePath, "w") as cardsFile:
                 cardsFile.write('{"cards":[]}')
+
         self.createFileIfNotExists(
             folderPath=self.cardsFolderPath, filePath=self.cardsFilePath, initFunction=initializeCards
         )
@@ -86,14 +91,25 @@ class Database:
         with open(self.playersFilePath, "r") as file:
             return json.load(file)["players"]
 
-    def getCards(self) -> list[dict]:
+    def getCards(self) -> list[cardObject]:
         with open(self.cardsFilePath, "r") as file:
             return json.load(file)["cards"]
+
+    def getCardFromName(self, name: str) -> Card:
+        for card in self.getCards():
+            if card["name"] == name:
+                return cardFromObject(card)
 
     def findPlayer(self, playerId: str | int) -> Player:
         for player in self.getPlayers():
             if player["id"] == playerId:
-                return userFromDictionary(player)
+                decks = []
+                for deck in player["decks"]:
+                    decks.append(
+                        Deck(name=deck["name"])
+                    )
+                    decks[-1].cards = [self.getCardFromName(c) for c in deck["cards"]]
+                return userFromDictionary(player, decks)
         raise PlayerNotFound(f"The player could not be found! Id sent: {playerId}")
 
     def createNewPlayer(self, newPlayer: discord.Member) -> Player:
@@ -108,7 +124,7 @@ class Database:
         return newPlayer
 
     def savePlayer(self, player: Player):
-        print(player.toJSONString())
+        pass  # TODO
 
     def deleteAllData(self):
         shutil.rmtree("data")
