@@ -110,7 +110,23 @@ async def saveCards(ctx: Context):
 
 @bot.command()
 async def addCardToDeck(ctx: Context, deckName: str, cardName: str):
-    pass
+    logger.log("addCardToDeck opened")
+    if not db.isValidCardName(cardName):
+        embed = discord.Embed(title='Add card to deck', description="Such card doesn't exist. Please use "
+                                                                    "/showAllCards to see all of them", color=0xff0000)
+        await ctx.send(embed=embed)
+        raise BadRequest("There isn't a card called like that. Please use /showAllCards to see all of them.")
+    player = db.findPlayer(ctx.message.author.id)
+    deckIndex = -1
+    for i in range(len(player.decks)):
+        if player.decks[i].name == deckName:
+            deckIndex = i
+    if deckIndex == -1:
+        raise BadRequest("There is no deck called like that!")
+    player.decks[deckIndex].cards.append(db.getCardFromName(cardName))
+    db.savePlayer(player)
+    embed = discord.Embed(title="Card added!", color=0x79e4ff)
+    await ctx.send(embed=embed)
 
 
 @bot.command()
