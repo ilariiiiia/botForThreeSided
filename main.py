@@ -93,6 +93,22 @@ async def showAllCards(ctx: Context):
 
 
 @bot.command()
+async def saveMe(ctx: Context):
+    logger.log("saveMe opened")
+    db.savePlayer(db.findPlayer(ctx.message.author.id))
+    embed = discord.Embed(title="Saved!", color=0x79e4ff)
+    await ctx.send(embed=embed)
+
+
+@bot.command()
+async def saveCards(ctx: Context):
+    logger.log("saveCards opened")
+    db.saveCards()
+    embed = discord.Embed(title="Saved!", color=0x79e4ff)
+    await ctx.send(embed=embed)
+
+
+@bot.command()
 async def addCardToDeck(ctx: Context, deckName: str, cardName: str):
     pass
 
