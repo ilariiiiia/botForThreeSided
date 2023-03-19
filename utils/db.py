@@ -2,9 +2,16 @@ import os
 import shutil
 from pathlib import Path
 import json
-from utils.Deck import Deck, Card, cardFromObject, cardObject
+from utils.Deck import Deck, Card, cardFromObject, cardObject, deckObject
 
 import discord
+
+playerObject = {
+    "username": str,
+    "id": int,
+    "hand": list[str],
+    "deck": list[deckObject]
+}
 
 
 class PlayerNotFound(Exception):
@@ -88,7 +95,7 @@ class Database:
                 os.mkdir(folderPath)
                 initFunction()
 
-    def getPlayers(self) -> dict:
+    def getPlayers(self) -> list[playerObject]:
         with open(self.playersFilePath, "r") as file:
             return json.load(file)["players"]
 
