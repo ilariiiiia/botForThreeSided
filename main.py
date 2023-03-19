@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 from utils.db import Database, PlayerNotFound
 # utilities
 from utils.log import Logger
+from utils.Exceptions import BadRequest
 
 load_dotenv()
 APIToken = os.getenv("botToken")
@@ -37,6 +38,7 @@ async def handlePlayerExists(ctx: Context) -> bool:
 
 @bot.event
 async def on_ready():
+    logger.log("bot ready!")
     print(f'Logged in as {bot.user}')
 
 
@@ -83,6 +85,7 @@ async def decks(ctx: Context):
 
 @bot.command()
 async def showAllCards(ctx: Context):
+    logger.log("showAllCards opened")
     embed = discord.Embed(title="All available cards!", color=0x79e4ff)
     for c in db.getCards():
         embed.add_field(name=c["name"], value=c["props"], inline=False)
@@ -96,24 +99,27 @@ async def addCardToDeck(ctx: Context, deckName: str, cardName: str):
 
 @bot.command()
 async def rm(ctx: Context):
+    logger.log("rm opened")
     await deleteAllData(ctx)
 
 
 @bot.command()
 async def deleteAllData(ctx: Context):
+    logger.log("deleteAllData opened")
     db.deleteAllData()
     await ctx.send("Done!")
 
 
 @bot.command()
 async def restart(ctx: Context):
+    logger.log("restart opened")
     db.restart()
     await ctx.send("Restarted!")
 
 
 @bot.command()
 async def ping(ctx):
-    logger.log("ping sent")
+    logger.log("ping opened")
     await ctx.send('pong')
 
 
