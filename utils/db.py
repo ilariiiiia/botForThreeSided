@@ -1,4 +1,5 @@
 import os
+import shutil
 from pathlib import Path
 import json
 from utils.Deck import Deck, Card
@@ -54,6 +55,7 @@ decks = {self.decks}
 
 class Database:
     def __init__(self, path: str):
+        self.path = path
         self.root = os.path.dirname(os.path.abspath(path))
         self.folderPath = Path(f"{self.root}/data")
         self.playersFilePath = self.folderPath / "players.json"
@@ -102,7 +104,7 @@ class Database:
                 return userFromDictionary(player)
         raise PlayerNotFound(f"The player could not be found! Id sent: {playerId}")
 
-    def createNewPlayer(self, newPlayer: discord.Member) -> None:
+    def createNewPlayer(self, newPlayer: discord.Member) -> Player:
         newPlayer = Player(newPlayer, hand=[], decks=[])
         with open(self.playersFilePath, "r") as file:
             oldData = json.load(file)
@@ -111,6 +113,13 @@ class Database:
             newPlayers.append(newPlayer.objectify())
             newData = {"players": newPlayers}
             file.write(json.dumps(newData, indent=4))
+        return newPlayer
 
     def savePlayer(self, player: Player):
         players = self.getPlayers()
+
+    def deleteAllData(self):
+        shutil.rmtree("data")
+
+    def restart(self):
+        self.__init__(self.path)

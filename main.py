@@ -38,18 +38,25 @@ async def on_message(message):
 @bot.command()
 async def whoAmI(ctx: Context):
     logger.log("whoAmI opened")
+
     try:
-        db.findPlayer(ctx.message.author.id)
-        embed = discord.Embed(title='Who are you?', description='I found you!', color=0x79e4ff)
+        player = db.findPlayer(ctx.message.author.id)
+        embed = discord.Embed(title='Found you!', description='', color=0x79e4ff)
+        for name in player.objectify().keys():
+            embed.add_field(name=name, value=player.objectify()[name], inline=False)
         await ctx.send(embed=embed)
+
     except PlayerNotFound:
         embed = discord.Embed(title='Who are you?', description='Player not found! Creating a new player...',
                               color=0xff0000)
         await ctx.send(embed=embed)
-        db.createNewPlayer(ctx.message.author)
+        player = db.createNewPlayer(ctx.message.author)
         embed = discord.Embed(title='Who are you?', description='Player created!',
                               color=0x79e4ff)
+        for name in player.objectify().keys():
+            embed.add_field(name=name, value=player.objectify()[name], inline=False)
         await ctx.send(embed=embed)
+
 
 @bot.command()
 async def decks(ctx: Context):
@@ -70,6 +77,17 @@ async def decks(ctx: Context):
         db.createNewPlayer(ctx.message.author)
         await decks(ctx)
 
+
+@bot.command()
+async def deleteAllData(ctx: Context):
+    db.deleteAllData()
+    await ctx.send("Done!")
+
+
+@bot.command()
+async def restart(ctx: Context):
+    db.restart()
+    await ctx.send("Restarted!")
 
 
 @bot.command()
