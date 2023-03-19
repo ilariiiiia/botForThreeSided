@@ -79,7 +79,8 @@ class Database:
             folderPath=self.cardsFolderPath, filePath=self.cardsFilePath, initFunction=initializeCards
         )
 
-    def createFileIfNotExists(self, folderPath, filePath, initFunction):
+    @staticmethod
+    def createFileIfNotExists(folderPath, filePath, initFunction):
         if not filePath.exists():
             try:
                 initFunction()
@@ -124,9 +125,19 @@ class Database:
         return newPlayer
 
     def savePlayer(self, player: Player):
-        pass  # TODO
+        players = self.getPlayers()
+        for i, p in enumerate(players):
+            if p["id"] == player.id:
+                players[i] = player.objectify()
+        with open(self.playersFilePath, "w") as file:
+            file.write(json.dumps({"players": players}, indent=4))
 
-    def deleteAllData(self):
+    def saveCards(self):
+        with open(self.playersFilePath, "w") as file:
+            file.write(json.dumps(self.cards, indent=4))
+
+    @staticmethod
+    def deleteAllData():
         shutil.rmtree("data")
 
     def restart(self):
