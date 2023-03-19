@@ -108,6 +108,9 @@ class Database:
             if card["name"] == name:
                 return cardFromObject(card)
 
+    def isValidCardName(self, name: str) -> bool:
+        return name in [c["name"] for c in self.cards]
+
     def findPlayer(self, playerId: str | int) -> Player:
         for player in self.getPlayers():
             if player["id"] == playerId:

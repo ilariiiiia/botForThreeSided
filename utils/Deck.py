@@ -51,14 +51,20 @@ class Deck:
     def removeCard(self, card: Card) -> None:
         self.cards.remove(card)
 
-    def toObject(self) -> deckObject:
+    def toObject(self, name) -> deckObject:
+        name = name if name else False
+        if name:
+            return {
+                "name": self.name,
+                "cards": [c.name for c in self.cards]
+            }
         return {
             "name": self.name,
             "cards": [c.toObject() for c in self.cards]
         }
 
     def toJSONString(self) -> str:
-        return json.dumps(self.toObject())
+        return json.dumps(self.toObject(name=False))
 
 
 def cardFromObject(obj: cardObject):
