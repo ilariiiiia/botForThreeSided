@@ -20,26 +20,19 @@ class Card:
         self.name = name
         self.props = props
 
-    def toObject(self) -> cardObject:
-        return {
-            "link": self.link,
-            "name": self.name,
-            "props": self.props
-        }
-
     def toJSONString(self) -> str:
-        return json.dumps(self.toObject())
+        return json.dumps(self.__dict__)
 
 
 class Deck:
     def __init__(self, name):
-        self.cards: list[Card] = []
+        self.cards: list[str] = []
         self.name = name
 
     def shuffle(self) -> None:
         shuffle(self.cards)
 
-    def draw(self, num) -> list[Card]:
+    def draw(self, num) -> list[str]:
         try:
             num = int(num)
         except Exception:
@@ -48,23 +41,13 @@ class Deck:
             return self.cards[0:num]
         raise NoMoreCardsException("Attempted to draw cards from a deck with no cards")
 
-    def removeCard(self, card: Card) -> None:
+    def removeCard(self, card: str | Card) -> None:
+        if type(card) == Card:
+            card = card.name
         self.cards.remove(card)
 
-    def toObject(self, name) -> deckObject:
-        name = name if name else False
-        if name:
-            return {
-                "name": self.name,
-                "cards": [c.name for c in self.cards]
-            }
-        return {
-            "name": self.name,
-            "cards": [c.toObject() for c in self.cards]
-        }
-
     def toJSONString(self) -> str:
-        return json.dumps(self.toObject(name=False))
+        return json.dumps(self.__dict__)
 
 
 def cardFromObject(obj: cardObject):

@@ -58,8 +58,8 @@ async def whoAmI(ctx: Context):
     await handlePlayerExists(ctx)
     player = db.findPlayer(ctx.message.author.id)
     embed = discord.Embed(title='Found you!', description='', color=0x79e4ff)
-    for name in player.objectify().keys():
-        embed.add_field(name=name, value=player.objectify()[name], inline=False)
+    for name in player.__dict__.keys():
+        embed.add_field(name=name, value=player.__dict__[name], inline=False)
     await ctx.send(embed=embed)
 
 
@@ -122,8 +122,11 @@ async def addCardToDeck(ctx: Context, deckName: str, cardName: str):
         if player.decks[i].name == deckName:
             deckIndex = i
     if deckIndex == -1:
+        embed = discord.Embed(title='Add card to deck', description="Such deck doesn't exist. Please use "
+                                                                    "/whoAmI to see your decks", color=0xff0000)
+        await ctx.send(embed=embed)
         raise BadRequest("There is no deck called like that!")
-    player.decks[deckIndex].cards.append(db.getCardFromName(cardName))
+    player.decks[deckIndex].cards.append(cardName)
     db.savePlayer(player)
     embed = discord.Embed(title="Card added!", color=0x79e4ff)
     await ctx.send(embed=embed)
@@ -150,7 +153,7 @@ async def restart(ctx: Context):
 
 
 @bot.command()
-async def ping(ctx):
+async def ping(ctx: Context):
     logger.log("ping opened")
     await ctx.send('pong')
 

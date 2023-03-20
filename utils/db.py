@@ -43,16 +43,18 @@ class Player:
         self.decks = decks if decks else []
         self.activeDeck = None
 
-    def objectify(self) -> dict:
+    @property
+    def __dict__(self):
         return {
             "username": self.username,
             "id": self.id,
             "hand": self.hand,
-            "decks": [deck.toObject(name=True) for deck in self.decks]
+            "decks": [deck.__dict__ for deck in self.decks],
+            "activeDeck": self.activeDeck
         }
 
     def toJSONString(self):
-        return json.dumps(self.objectify())
+        return json.dumps(self.__dict__)
 
     def __repr__(self):
         return f"""Player;username={self.username},id={self.id},hand={self.hand},decks={self.decks}"""
@@ -119,7 +121,7 @@ class Database:
                     decks.append(
                         Deck(name=deck["name"])
                     )
-                    decks[-1].cards = [self.getCardFromName(c) for c in deck["cards"]]
+                    decks[-1].cards = deck["cards"]
                 return userFromDictionary(player, decks)
         raise PlayerNotFound(f"The player could not be found! Id sent: {playerId}")
 
@@ -129,7 +131,7 @@ class Database:
             oldData = json.load(file)
         with open(self.playersFilePath, "w") as file:
             newPlayers = oldData["players"]
-            newPlayers.append(newPlayer.objectify())
+            newPlayers.append(newPlayer.__dict__)
             newData = {"players": newPlayers}
             file.write(json.dumps(newData, indent=4))
         return newPlayer
@@ -138,7 +140,7 @@ class Database:
         players = self.getPlayers()
         for i, p in enumerate(players):
             if p["id"] == player.id:
-                players[i] = player.objectify()
+                players[i] = player.__dict__
         with open(self.playersFilePath, "w") as file:
             file.write(json.dumps({"players": players}, indent=4))
 
