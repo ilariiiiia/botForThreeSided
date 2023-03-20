@@ -33,7 +33,7 @@ async def handlePlayerExists(ctx: Context) -> bool:
             color=0xff0000)
         await ctx.send(embed=embed)
         db.createNewPlayer(ctx.message.author)
-        return True
+        return False
 
 
 @bot.event
