@@ -140,7 +140,6 @@ async def showAllCards(ctx: Context):
     logger.log("showAllCards called", props={
         "ctx": Logger.contextToObject(ctx)
     })
-    logger.log("showAllCards opened")
     embed = discord.Embed(title="All available cards!", color=0x79e4ff)
     for c in db.getCards():
         embed.add_field(name=c["name"], value=c["props"], inline=False)
@@ -152,6 +151,8 @@ async def saveMe(ctx: Context):
     logger.log("saveMe called", props={
         "ctx": Logger.contextToObject(ctx)
     })
+    if not await handlePlayerExists(ctx):
+        return
     db.savePlayer(db.findPlayer(ctx.message.author.id))
     embed = discord.Embed(title="Saved!", color=0x79e4ff)
     await ctx.send(embed=embed)
@@ -174,6 +175,8 @@ async def addCardToDeck(ctx: Context, cardName: str, deckName: str):
         "cardName": cardName,
         "deckName": deckName
     })
+    if not await handlePlayerExists(ctx):
+        return
     if not db.isValidCardName(cardName):
         embed = discord.Embed(title='Add card to deck', description="Such card doesn't exist. Please use "
                                                                     "/showAllCards to see all of them", color=0xff0000)
@@ -201,6 +204,8 @@ async def draw(ctx: Context, n: str):
         "ctx": Logger.contextToObject(ctx),
         "n": n
     })
+    if not await handlePlayerExists(ctx):
+        return
     try:
         int(n)
     except ValueError:
