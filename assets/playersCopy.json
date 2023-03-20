@@ -9,15 +9,17 @@
             ],
             "decks": [
                 {
-                    "name": "Test deck",
                     "cards": [
                         "Assault",
                         "Head devastating",
                         "Reactive armor",
-                        "Exotic armor"
-                    ]
+                        "Exotic armor",
+                        "Breakdown"
+                    ],
+                    "name": "Test deck"
                 }
-            ]
+            ],
+            "activeDeck": "Test deck"
         }
     ]
 }
