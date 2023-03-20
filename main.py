@@ -6,6 +6,7 @@ from discord.ext.commands.context import Context  # for typing only
 from dotenv import load_dotenv
 
 from utils.db import Database, PlayerNotFound
+from utils.Deck import Deck
 # utilities
 from utils.log import Logger
 from utils.Exceptions import BadRequest
@@ -81,6 +82,22 @@ async def decks(ctx: Context):
         await ctx.send(embed=embed)
         db.createNewPlayer(ctx.message.author)
         await decks(ctx)
+
+
+@bot.command()
+async def newDeck(ctx: Context, name: str = None):
+    if not await handlePlayerExists(ctx):
+        return
+    player = db.findPlayer(ctx.message.author.id)
+    for deck in player.decks:
+        if deck.name == name:
+            embed = discord.Embed(title='newDeck', description='Deck already exists! Please try another name',
+                                  color=0xff0000)
+            await ctx.send(embed=embed)
+            raise BadRequest("Deck already exists!")
+    player.decks.append(Deck(name=name))
+    db.savePlayer(player)
+    await decks(ctx)
 
 
 @bot.command()
