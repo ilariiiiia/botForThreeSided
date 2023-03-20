@@ -5,9 +5,9 @@ from discord.ext import commands
 from discord.ext.commands.context import Context  # for typing only
 from dotenv import load_dotenv
 
+# utilities
 from utils.db import Database, PlayerNotFound
 from utils.Deck import Deck
-# utilities
 from utils.log import Logger
 from utils.Exceptions import BadRequest
 
@@ -100,7 +100,7 @@ async def newDeck(ctx: Context, name: str = None):
 
 
 @bot.command()
-async def removeDeck(ctx: Context, name:str = None):
+async def removeDeck(ctx: Context, name: str = None):
     if not await handlePlayerExists(ctx):
         return
     player = db.findPlayer(ctx.message.author.id)
@@ -116,7 +116,6 @@ async def removeDeck(ctx: Context, name:str = None):
         raise BadRequest("Deck does not exist!")
     db.savePlayer(player)
     await decks(ctx)
-
 
 
 @bot.command()
@@ -145,7 +144,7 @@ async def saveCards(ctx: Context):
 
 
 @bot.command()
-async def addCardToDeck(ctx: Context, deckName: str, cardName: str):
+async def addCardToDeck(ctx: Context, cardName: str, deckName: str):
     logger.log("addCardToDeck opened")
     if not db.isValidCardName(cardName):
         embed = discord.Embed(title='Add card to deck', description="Such card doesn't exist. Please use "
@@ -170,7 +169,6 @@ async def addCardToDeck(ctx: Context, deckName: str, cardName: str):
 
 @bot.command()
 async def draw(ctx: Context, n: str):
-    num = n
     try:
         int(n)
     except ValueError:
