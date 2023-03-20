@@ -71,8 +71,7 @@ async def decks(ctx: Context):
         author = db.findPlayer(ctx.message.author.id)
         embed = discord.Embed(title='Decks', description='Your current decks', color=0x79e4ff)
         for deck in author.decks:
-            maxLvl = max(card.level for card in deck.cards)
-            embed.add_field(name=f'"{deck.name}"', value=f'{len(deck.cards)} cards, max. lvl.:{maxLvl}', inline=False)
+            embed.add_field(name=f'"{deck.name}"', value=f'{len(deck.cards)} cards', inline=False)
         if not len(author.decks):
             embed = discord.Embed(title='Decks', description='You have no decks at the moment. Please consider '
                                                              'creating one with /newDeck', color=0x79e4ff)
