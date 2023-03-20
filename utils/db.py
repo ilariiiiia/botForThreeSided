@@ -162,8 +162,8 @@ class Database:
             file.write(json.dumps({"players": players}, indent=4))
 
     def saveCards(self):
-        with open(self.playersFilePath, "w") as file:
-            file.write(json.dumps(self.cards, indent=4))
+        with open(self.cardsFilePath, "w") as file:
+            file.write(json.dumps({"cards": self.cards}, indent=4))
 
     @staticmethod
     def deleteAllData():
