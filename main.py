@@ -199,6 +199,48 @@ async def addCardToDeck(ctx: Context, cardName: str, deckName: str):
 
 
 @bot.command()
+async def addCardToOtherDeck(ctx: Context, cardName: str, otherName: str, deckName: str):
+    logger.log("addCardToDeck called", props={
+        "ctx": Logger.contextToObject(ctx),
+        "cardName": cardName,
+        "deckName": deckName,
+    })
+    if not await handlePlayerExists(ctx):
+        logger.log("Access denied", props={
+            "ctx": Logger.contextToObject(ctx),
+            "cardName": cardName,
+            "deckName": deckName,
+        })
+        embed = discord.Embed(
+            title='Uh Oh! An error occurred!',
+            description="You don't seem to have the needed permissions!",
+            color=0xff0000)
+        await ctx.send(embed=embed)
+        return
+    if not any(str(r) == "sudo-user" for r in ctx.message.author.roles):
+        return
+    if not db.isValidCardName(cardName):
+        embed = discord.Embed(title='Add card to deck', description="Such card doesn't exist. Please use "
+                                                                    "/showAllCards to see all of them", color=0xff0000)
+        await ctx.send(embed=embed)
+        raise BadRequest("There isn't a card called like that. Please use /showAllCards to see all of them.")
+    player = db.findPlayerFromName(otherName)
+    deckIndex = -1
+    for i in range(len(player.decks)):
+        if player.decks[i].name == deckName:
+            deckIndex = i
+    if deckIndex == -1:
+        embed = discord.Embed(title='Add card to deck', description="Such deck doesn't exist. Please use "
+                                                                    "/whoAmI to see your decks", color=0xff0000)
+        await ctx.send(embed=embed)
+        raise BadRequest("There is no deck called like that!")
+    player.decks[deckIndex].cards.append(cardName)
+    db.savePlayer(player)
+    embed = discord.Embed(title="Card added!", color=0x79e4ff)
+    await ctx.send(embed=embed)
+
+
+@bot.command()
 async def draw(ctx: Context, n: str):
     logger.log("draw called", props={
         "ctx": Logger.contextToObject(ctx),
