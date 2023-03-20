@@ -3,6 +3,7 @@ import shutil
 from pathlib import Path
 import json
 from utils.Deck import Deck, Card, cardFromObject, cardObject, deckObject
+from utils.Exceptions import BadRequest
 
 import discord
 
@@ -31,17 +32,18 @@ def userFromDictionary(arg: dict, decks: list[Deck]):
     return Player(
         user=helperUser(arg["username"], arg["id"]),
         hand=arg["hand"],
-        decks=decks
+        decks=decks,
+        activeDeck=arg["activeDeck"]
     )
 
 
 class Player:
-    def __init__(self, user: discord.Member | helperUser, hand: list[Card], decks: list[Deck]):
+    def __init__(self, user: discord.Member | helperUser, hand: list[str], decks: list[Deck], activeDeck: str):
         self.username = user.name
         self.id = user.id
         self.hand = hand if hand else []
         self.decks = decks if decks else []
-        self.activeDeck = None
+        self.activeDeck = activeDeck if activeDeck else None
 
     @property
     def __dict__(self):
@@ -58,6 +60,21 @@ class Player:
 
     def __repr__(self):
         return f"""Player;username={self.username},id={self.id},hand={self.hand},decks={self.decks}"""
+
+    def draw(self, n: int):
+        if self.activeDeck is None:
+            raise BadRequest("Active deck not chosen!")
+        if n > len(self.activeDeck):
+            raise BadRequest("Active deck has too little cards!")
+        activeDeckIndex = -1
+        for i, deck in enumerate(self.decks):
+            if deck.name == self.activeDeck:
+                activeDeckIndex = i
+        if n > len(self.decks[activeDeckIndex].cards):
+            raise BadRequest("Active deck has too little cards!")
+        self.hand.extend(self.decks[activeDeckIndex].cards[0:n])
+        self.decks[activeDeckIndex].cards = self.decks[activeDeckIndex].cards[n::]
+        return self
 
 
 class Database:

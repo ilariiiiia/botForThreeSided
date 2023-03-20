@@ -133,6 +133,20 @@ async def addCardToDeck(ctx: Context, deckName: str, cardName: str):
 
 
 @bot.command()
+async def draw(ctx: Context, n: str):
+    num = n
+    try:
+        int(n)
+    except ValueError:
+        embed = discord.Embed(title='Draw', description="Value inputted is not a number!", color=0xff0000)
+        await ctx.send(embed=embed)
+        raise BadRequest("Value inputted is not a number!")
+    num = int(n)
+    player = db.findPlayer(ctx.message.author.id)
+    db.savePlayer(player.draw(num))
+
+
+@bot.command()
 async def rm(ctx: Context):
     logger.log("rm opened")
     await deleteAllData(ctx)
