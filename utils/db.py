@@ -38,7 +38,7 @@ def userFromDictionary(arg: dict, decks: list[Deck]):
 
 
 class Player:
-    def __init__(self, user: discord.Member | helperUser, hand: list[str], decks: list[Deck], activeDeck: str):
+    def __init__(self, user: discord.Member | helperUser, hand: list[str], decks: list[Deck], activeDeck: str|None):
         self.username = user.name
         self.id = user.id
         self.hand = hand if hand else []
@@ -142,8 +142,20 @@ class Database:
                 return userFromDictionary(player, decks)
         raise PlayerNotFound(f"The player could not be found! Id sent: {playerId}")
 
+    def findPlayerFromName(self, playerName: str) -> Player:
+        for player in self.getPlayers():
+            if player["userName"] == playerName:
+                decks = []
+                for deck in player["decks"]:
+                    decks.append(
+                        Deck(name=deck["name"])
+                    )
+                    decks[-1].cards = deck["cards"]
+                return userFromDictionary(player, decks)
+        raise PlayerNotFound(f"The player could not be found! Name sent: {playerName}")
+
     def createNewPlayer(self, newPlayer: discord.Member) -> Player:
-        newPlayer = Player(newPlayer, hand=[], decks=[])
+        newPlayer = Player(newPlayer, hand=[], decks=[], activeDeck=None)
         with open(self.playersFilePath, "r") as file:
             oldData = json.load(file)
         with open(self.playersFilePath, "w") as file:
