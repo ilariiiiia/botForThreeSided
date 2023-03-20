@@ -23,6 +23,9 @@ db = Database(__file__)
 
 
 async def handlePlayerExists(ctx: Context) -> bool:
+    logger.log("handlePlayerExists called", props={
+        "ctx": Logger.contextToObject(ctx)
+    })
     try:
         db.findPlayer(ctx.message.author.id)
         return True
@@ -44,8 +47,10 @@ async def on_ready():
 
 
 @bot.event
-async def on_message(message):
-    logger.log(message)
+async def on_message(message: discord.Message):
+    logger.log("Message arrived!", props={
+        "payload": logger.messageToObject(message)
+    })
     if message.author == bot.user:
         return
     if message.content.startswith(bot.command_prefix):
@@ -55,7 +60,9 @@ async def on_message(message):
 
 @bot.command()
 async def whoAmI(ctx: Context):
-    logger.log("whoAmI opened")
+    logger.log("whoAmI called", props={
+        "ctx": Logger.contextToObject(ctx)
+    })
     await handlePlayerExists(ctx)
     player = db.findPlayer(ctx.message.author.id)
     embed = discord.Embed(title='Found you!', description='', color=0x79e4ff)
@@ -66,7 +73,9 @@ async def whoAmI(ctx: Context):
 
 @bot.command()
 async def decks(ctx: Context):
-    logger.log("decks opened")
+    logger.log("decks called", props={
+        "ctx": Logger.contextToObject(ctx)
+    })
     try:
         author = db.findPlayer(ctx.message.author.id)
         embed = discord.Embed(title='Decks', description='Your current decks', color=0x79e4ff)
@@ -85,6 +94,10 @@ async def decks(ctx: Context):
 
 @bot.command()
 async def newDeck(ctx: Context, name: str = None):
+    logger.log("newDeck called", props={
+        "ctx": Logger.contextToObject(ctx),
+        "name": name
+    })
     if not await handlePlayerExists(ctx):
         return
     player = db.findPlayer(ctx.message.author.id)
@@ -101,6 +114,10 @@ async def newDeck(ctx: Context, name: str = None):
 
 @bot.command()
 async def removeDeck(ctx: Context, name: str = None):
+    logger.log("removeDeck called", props={
+        "ctx": Logger.contextToObject(ctx),
+        "name": name
+    })
     if not await handlePlayerExists(ctx):
         return
     player = db.findPlayer(ctx.message.author.id)
@@ -120,6 +137,9 @@ async def removeDeck(ctx: Context, name: str = None):
 
 @bot.command()
 async def showAllCards(ctx: Context):
+    logger.log("showAllCards called", props={
+        "ctx": Logger.contextToObject(ctx)
+    })
     logger.log("showAllCards opened")
     embed = discord.Embed(title="All available cards!", color=0x79e4ff)
     for c in db.getCards():
@@ -129,7 +149,9 @@ async def showAllCards(ctx: Context):
 
 @bot.command()
 async def saveMe(ctx: Context):
-    logger.log("saveMe opened")
+    logger.log("saveMe called", props={
+        "ctx": Logger.contextToObject(ctx)
+    })
     db.savePlayer(db.findPlayer(ctx.message.author.id))
     embed = discord.Embed(title="Saved!", color=0x79e4ff)
     await ctx.send(embed=embed)
@@ -137,7 +159,9 @@ async def saveMe(ctx: Context):
 
 @bot.command()
 async def saveCards(ctx: Context):
-    logger.log("saveCards opened")
+    logger.log("saveCards called", props={
+        "ctx": Logger.contextToObject(ctx)
+    })
     db.saveCards()
     embed = discord.Embed(title="Saved!", color=0x79e4ff)
     await ctx.send(embed=embed)
@@ -145,7 +169,11 @@ async def saveCards(ctx: Context):
 
 @bot.command()
 async def addCardToDeck(ctx: Context, cardName: str, deckName: str):
-    logger.log("addCardToDeck opened")
+    logger.log("addCardToDeck called", props={
+        "ctx": Logger.contextToObject(ctx),
+        "cardName": cardName,
+        "deckName": deckName
+    })
     if not db.isValidCardName(cardName):
         embed = discord.Embed(title='Add card to deck', description="Such card doesn't exist. Please use "
                                                                     "/showAllCards to see all of them", color=0xff0000)
@@ -169,6 +197,10 @@ async def addCardToDeck(ctx: Context, cardName: str, deckName: str):
 
 @bot.command()
 async def draw(ctx: Context, n: str):
+    logger.log("draw called", props={
+        "ctx": Logger.contextToObject(ctx),
+        "n": n
+    })
     try:
         int(n)
     except ValueError:
@@ -182,27 +214,35 @@ async def draw(ctx: Context, n: str):
 
 @bot.command()
 async def rm(ctx: Context):
-    logger.log("rm opened")
+    logger.log("rm called", props={
+        "ctx": Logger.contextToObject(ctx)
+    })
     await deleteAllData(ctx)
 
 
 @bot.command()
 async def deleteAllData(ctx: Context):
-    logger.log("deleteAllData opened")
+    logger.log("deleteAllData called", props={
+        "ctx": Logger.contextToObject(ctx)
+    })
     db.deleteAllData()
     await ctx.send("Done!")
 
 
 @bot.command()
 async def restart(ctx: Context):
-    logger.log("restart opened")
+    logger.log("restart called", props={
+        "ctx": Logger.contextToObject(ctx)
+    })
     db.restart()
     await ctx.send("Restarted!")
 
 
 @bot.command()
 async def ping(ctx: Context):
-    logger.log("ping opened")
+    logger.log("ping called", props={
+        "ctx": Logger.contextToObject(ctx)
+    })
     await ctx.send('pong')
 
 
