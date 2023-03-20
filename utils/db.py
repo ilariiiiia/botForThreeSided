@@ -38,7 +38,7 @@ def userFromDictionary(arg: dict, decks: list[Deck]):
 
 
 class Player:
-    def __init__(self, user: discord.Member | helperUser, hand: list[str], decks: list[Deck], activeDeck: str|None):
+    def __init__(self, user: discord.Member | helperUser, hand: list[str], decks: list[Deck], activeDeck: str | None):
         self.username = user.name
         self.id = user.id
         self.hand = hand if hand else []
@@ -74,6 +74,19 @@ class Player:
             raise BadRequest("Active deck has too little cards!")
         self.hand.extend(self.decks[activeDeckIndex].cards[0:n])
         self.decks[activeDeckIndex].cards = self.decks[activeDeckIndex].cards[n::]
+        return self
+
+    def play(self, cardName: str):
+        if self.activeDeck is None:
+            raise BadRequest("Active deck not chosen!")
+        activeDeckIndex = -1
+        for i, deck in enumerate(self.decks):
+            if deck.name == self.activeDeck:
+                activeDeckIndex = i
+        if cardName not in self.hand:
+            raise BadRequest("Card inputted is not in your hand!")
+        self.decks[activeDeckIndex].cards.append(cardName)
+        self.hand.remove(cardName)
         return self
 
 

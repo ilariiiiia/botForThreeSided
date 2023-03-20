@@ -257,6 +257,30 @@ async def draw(ctx: Context, n: str):
     num = int(n)
     player = db.findPlayer(ctx.message.author.id)
     db.savePlayer(player.draw(num))
+    embed = discord.Embed(title="Card(s) drawn!", color=0x79e4ff)
+    await ctx.send(embed=embed)
+
+
+@bot.command()
+async def play(ctx: Context, cardName: str):
+    logger.log("draw called", props={
+        "ctx": Logger.contextToObject(ctx),
+        "cardName": cardName
+    })
+    if not await handlePlayerExists(ctx):
+        return
+    if not db.isValidCardName(cardName):
+        embed = discord.Embed(title='Play',
+                              description="Card does not exist. Please try again",
+                              color=0xff0000)
+        await ctx.send(embed=embed)
+        raise BadRequest("Card does not exist!")
+    player = db.findPlayer(ctx.message.author.id)
+    db.savePlayer(player.play(cardName))
+    embed = discord.Embed(title="Card played!", color=0x79e4ff)
+    card = db.getCardFromName(cardName)
+    embed.set_image(url=card.link)
+    await ctx.send(embed=embed)
 
 
 @bot.command()
