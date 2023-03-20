@@ -39,8 +39,8 @@ now, do `python main.py` to run the bot. Alternatively, use `python3 main.py` in
     + Draws `n` cards.
 + **rm**
     + See `removeAllData`.
-+ **removeAllData**
-    + Removes all user data (testing only).
++ **deleteAllData**
+    + Deletes all user data (testing only).
 + **restart**
     + restarts the bot.
 + **ping**
