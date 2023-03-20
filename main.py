@@ -100,6 +100,26 @@ async def newDeck(ctx: Context, name: str = None):
 
 
 @bot.command()
+async def removeDeck(ctx: Context, name:str = None):
+    if not await handlePlayerExists(ctx):
+        return
+    player = db.findPlayer(ctx.message.author.id)
+    found = False
+    for i, deck in enumerate(player.decks):
+        if deck.name == name:
+            player.decks.remove(deck)
+            found = True
+    if not found:
+        embed = discord.Embed(title='removeDeck', description="Deck doesn't exist! Please try another name",
+                              color=0xff0000)
+        await ctx.send(embed=embed)
+        raise BadRequest("Deck does not exist!")
+    db.savePlayer(player)
+    await decks(ctx)
+
+
+
+@bot.command()
 async def showAllCards(ctx: Context):
     logger.log("showAllCards opened")
     embed = discord.Embed(title="All available cards!", color=0x79e4ff)
