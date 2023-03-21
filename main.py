@@ -247,11 +247,6 @@ async def addCardToOtherDeck(ctx: Context, cardName: str, otherName: str, deckNa
             "deckName": deckName,
             "success": False
         })
-        embed = discord.Embed(
-            title='Uh Oh! An error occurred!',
-            description="You don't seem to have the needed permissions!",
-            color=0xff0000)
-        await ctx.send(embed=embed)
         return
     if not any(str(r) == "sudo-user" for r in ctx.message.author.roles):
         logger.log("addCardToOtherDeck called but user isn't sudo user", props={
@@ -260,6 +255,11 @@ async def addCardToOtherDeck(ctx: Context, cardName: str, otherName: str, deckNa
             "deckName": deckName,
             "success": False
         })
+        embed = discord.Embed(
+            title='Uh Oh! An error occurred!',
+            description="You don't seem to have the needed permissions!",
+            color=0xff0000)
+        await ctx.send(embed=embed)
         return
     if not db.isValidCardName(cardName):
         embed = discord.Embed(title='Add card to deck', description="Such card doesn't exist. Please use "
