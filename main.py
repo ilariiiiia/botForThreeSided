@@ -366,22 +366,43 @@ async def play(ctx: Context, cardName: str):
 
 
 @bot.command()
+async def setCurrentDeck(ctx: Context, deckName: str):
+    if not await handlePlayerExists(ctx):
+        logger.log("setCurrentDeck called but player does not exist", props={
+            "ctx": Logger.contextToObject(ctx),
+            "deckName": deckName,
+            "success": False
+        })
+        return
+    player = db.findPlayer(ctx.message.author.id)
+    if any(deck.name == deckName for deck in player.decks):
+        logger.log("setCurrentDeck called", props={
+            "ctx": Logger.contextToObject(ctx),
+            "deckName": deckName,
+            "success": True
+        })
+        player.activeDeck = deckName
+        db.savePlayer(player)
+        embed = discord.Embed(title=f"Active deck changed to {deckName}", color=0x79e4ff)
+        await ctx.send(embed=embed)
+        return
+    logger.log("setCurrentDeck called but deck does not exist", props={
+        "ctx": Logger.contextToObject(ctx),
+        "deckName": deckName,
+        "success": False
+    })
+    return
+
+
+@bot.command()
 async def rm(ctx: Context):
-    await deleteAllData(ctx)
+    db.deleteAllData()
+    await ctx.send("Done!")
     logger.log("rm called", props={
         "ctx": Logger.contextToObject(ctx),
         "success": True
     })
-
-
-@bot.command()
-async def deleteAllData(ctx: Context):
-    db.deleteAllData()
-    await ctx.send("Done!")
-    logger.log("deleteAllData called", props={
-        "ctx": Logger.contextToObject(ctx),
-        "success": True
-    })
+    await restart(ctx)
 
 
 @bot.command()
@@ -395,9 +416,35 @@ async def restart(ctx: Context):
 
 
 @bot.command()
-async def ping(ctx: Context):
-    await ctx.send('pong')
-    logger.log("ping called", props={
+async def commands(ctx: Context):
+    await ctx.send("""
+Welcome! Here is a list of my commands...
++ **whoAmI**
+    + Gives an overview of your account, including name, id, hand, and decks.
++ **decks**
+    + Tells you your decks and the number of cards inside them.
++ **newDeck**
+    + Creates a new deck.
++ **removeDeck**
+    + Removes a deck.
++ **setCurrentDeck `[deckName]`**
+    + Sets the current deck to `deckName`
++ **showAllCards**
+    + Shows all available cards from the shared card pool.
++ **addCardToDeck `[card]`, `[deck]`**
+    + Adds a card `card` to the deck `deck`.
++ **addCardToOtherDeck** `[card]` `[name]` `[deck]`
+    + Adds a card `card` to `name`'s deck `deck`
++ **draw `[n]`**
+    + Draws `n` cards.
++ **rm**
+    + Deletes all user data (testing only).
++ **restart**
+    + restarts the bot.
++ **commands**
+    + Returns a list of the bot's commands
+    """)
+    logger.log("commands called", props={
         "ctx": Logger.contextToObject(ctx),
         "success": True
     })
