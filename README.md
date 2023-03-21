@@ -27,21 +27,19 @@ now, do `python main.py` to run the bot. Alternatively, use `python3 main.py` in
     + Creates a new deck.
 + **removeDeck**
     + Removes a deck.
++ **setCurrentDeck `[deckName]`**
+    + Sets the current deck to `deckName`
 + **showAllCards**
     + Shows all available cards from the shared card pool.
-+ **saveMe**
-    + Saves the user (testing only).
-+ **saveCards**
-    + Saves the shared card pool's cards (testing only).
 + **addCardToDeck `[card]`, `[deck]`**
     + Adds a card `card` to the deck `deck`.
++ **addCardToOtherDeck** `[card]` `[name]` `[deck]`
+    + Adds a card `card` to `name`'s deck `deck`
 + **draw `[n]`**
     + Draws `n` cards.
 + **rm**
-    + See `removeAllData`.
-+ **deleteAllData**
     + Deletes all user data (testing only).
 + **restart**
     + restarts the bot.
-+ **ping**
-    + Replies with `pong` (testing only).
++ **commands**
+    + Returns a list of the bot's commands
