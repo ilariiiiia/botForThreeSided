@@ -190,34 +190,6 @@ async def showAllCards(ctx: Context):
 
 
 @bot.command()
-async def saveMe(ctx: Context):
-    if not await handlePlayerExists(ctx):
-        logger.log("saveMe called", props={
-            "ctx": Logger.contextToObject(ctx),
-            "success": False
-        })
-        return
-    db.savePlayer(db.findPlayer(ctx.message.author.id))
-    embed = discord.Embed(title="Saved!", color=0x79e4ff)
-    await ctx.send(embed=embed)
-    logger.log("saveMe called", props={
-        "ctx": Logger.contextToObject(ctx),
-        "success": True
-    })
-
-
-@bot.command()
-async def saveCards(ctx: Context):
-    db.saveCards()
-    embed = discord.Embed(title="Saved!", color=0x79e4ff)
-    await ctx.send(embed=embed)
-    logger.log("saveCards called", props={
-        "ctx": Logger.contextToObject(ctx),
-        "success": True
-    })
-
-
-@bot.command()
 async def addCardToDeck(ctx: Context, cardName: str, deckName: str):
     if not await handlePlayerExists(ctx):
         logger.log("addCardToDeck called", props={
