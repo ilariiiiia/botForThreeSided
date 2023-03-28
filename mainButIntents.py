@@ -14,7 +14,7 @@ from utils.Exceptions import BadRequest
 load_dotenv()
 APIToken = os.getenv("botToken")
 
-intents = discord.Intents.default()
+intents = discord.Intents.all()
 intents.message_content = True
 bot = commands.Bot(command_prefix='/', intents=intents)
 
@@ -46,12 +46,6 @@ async def handlePlayerExists(ctx: Context) -> bool:
 
 
 @bot.event
-async def on_ready():
-    logger.log("bot ready!")
-    print(f'Logged in as {bot.user}')
-
-
-@bot.event
 async def on_message(message: discord.Message):
     if message.author == bot.user:
         logger.log("Message arrived!", props={
@@ -68,7 +62,7 @@ async def on_message(message: discord.Message):
         return
 
 
-@bot.command(name="whoAmI", description="Gives your stats")
+@bot.tree.command(name="whoami", description="Gives your stats")
 async def whoAmI(ctx: Context):
     if not await handlePlayerExists(ctx):
         logger.log("whoAmI called", props={
@@ -87,7 +81,7 @@ async def whoAmI(ctx: Context):
     })
 
 
-@bot.command()
+@bot.tree.command(name="decks")
 async def decks(ctx: Context):
     try:
         author = db.findPlayer(ctx.message.author.id)
@@ -113,7 +107,7 @@ async def decks(ctx: Context):
         await decks(ctx)
 
 
-@bot.command()
+@bot.command(name="newdeck")
 async def newDeck(ctx: Context, name: str = None):
     if not await handlePlayerExists(ctx):
         logger.log("newDeck called", props={
@@ -144,7 +138,7 @@ async def newDeck(ctx: Context, name: str = None):
     })
 
 
-@bot.command()
+@bot.command(name="removedeck")
 async def removeDeck(ctx: Context, name: str = None):
     if not await handlePlayerExists(ctx):
         logger.log("removeDeck called", props={
@@ -178,7 +172,7 @@ async def removeDeck(ctx: Context, name: str = None):
     })
 
 
-@bot.command()
+@bot.tree.command(name="showallcards")
 async def showAllCards(ctx: Context):
     logger.log("showAllCards called", props={
         "interaction": Logger.contextToObject(ctx)
@@ -189,7 +183,7 @@ async def showAllCards(ctx: Context):
     await ctx.send(embed=embed)
 
 
-@bot.command()
+@bot.command(name="addcardtodeck")
 async def addCardToDeck(ctx: Context, cardName: str, deckName: str):
     if not await handlePlayerExists(ctx):
         logger.log("addCardToDeck called", props={
@@ -238,7 +232,7 @@ async def addCardToDeck(ctx: Context, cardName: str, deckName: str):
     })
 
 
-@bot.command()
+@bot.command(name="addcardtootherdeck")
 async def addCardToOtherDeck(ctx: Context, cardName: str, otherName: str, deckName: str):
     if not await handlePlayerExists(ctx):
         logger.log("addCardToOtherDeck called but player does not exist", props={
@@ -300,7 +294,7 @@ async def addCardToOtherDeck(ctx: Context, cardName: str, otherName: str, deckNa
     })
 
 
-@bot.command()
+@bot.command(name="draw")
 async def draw(ctx: Context, n: str):
     if not await handlePlayerExists(ctx):
         logger.log("draw called but user doesn't exist", props={
@@ -332,7 +326,7 @@ async def draw(ctx: Context, n: str):
     })
 
 
-@bot.command()
+@bot.command(name="play", description="plays the card as argument")
 async def play(ctx: Context, cardName: str):
     if not await handlePlayerExists(ctx):
         logger.log("draw called but player does not exist", props={
@@ -365,7 +359,7 @@ async def play(ctx: Context, cardName: str):
     })
 
 
-@bot.command()
+@bot.command(name="setcurrentdeck", description="Sets current deck to the argument")
 async def setCurrentDeck(ctx: Context, deckName: str):
     if not await handlePlayerExists(ctx):
         logger.log("setCurrentDeck called but player does not exist", props={
@@ -394,30 +388,34 @@ async def setCurrentDeck(ctx: Context, deckName: str):
     return
 
 
-@bot.command()
-async def rm(ctx: Context):
+@bot.tree.command(name="rm", description="Removes all user data")
+async def rm(interaction: discord.interactions.Interaction):
     db.deleteAllData()
-    await ctx.send("Done!")
+    await interaction.response.send_message(content="Done!")
     logger.log("rm called", props={
-        "interaction": Logger.contextToObject(ctx),
+        "interaction": Logger.contextToObject(interaction),
         "success": True
     })
-    await restart(ctx)
-
-
-@bot.command()
-async def restart(ctx: Context):
     db.restart()
-    await ctx.send("Restarted!")
+    logger.log("restart called", props={
+        "interaction": Logger.contextToObject(interaction),
+        "success": True
+    })
+
+
+@bot.tree.command(name="restart", description="restarts the data")
+async def restart(ctx: discord.interactions.Interaction):
+    db.restart()
+    await ctx.response.send_message(content="Restarted!")
     logger.log("restart called", props={
         "interaction": Logger.contextToObject(ctx),
         "success": True
     })
 
 
-@bot.command()
-async def commands(ctx: Context):
-    await ctx.send("""
+@bot.tree.command(name="commands", description="sends all the commands available")
+async def commands(interaction: discord.interactions.Interaction):
+    await interaction.response.send_message(content="""
 Welcome! Here is a list of my commands...
 + **whoAmI**
     + Gives an overview of your account, including name, id, hand, and decks.
@@ -443,11 +441,17 @@ Welcome! Here is a list of my commands...
     + restarts the bot.
 + **commands**
     + Returns a list of the bot's commands
-    """)
+    """, ephemeral=True)
     logger.log("commands called", props={
-        "interaction": Logger.contextToObject(ctx),
+        "interaction": Logger.contextToObject(interaction),
         "success": True
     })
+
+@bot.event
+async def on_ready():
+    logger.log("bot ready!")
+    synced = await bot.tree.sync()
+    print(f'Logged in as {bot.user} with {synced} commands synced')
 
 
 if __name__ == "__main__":
